@@ -33,9 +33,7 @@ Tools (inside Docker)
 
 <p>The script degrades gracefully if tools are missing, but full functionality requires both.
 
-
-
-Roadmap Ideas
+## Roadmap Ideas
 JSON state format with versioning
 Nuclei execution on new live endpoints only
 Per-program rate limiting

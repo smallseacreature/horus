@@ -43,6 +43,7 @@
 #Then, we will check the difference, and alert via Discord webhook if changes are found
 #This allows us to be aware of new endpoints for testing
 
+# TODO add hackerone header, test
 
 #imports
 from __future__ import annotations
