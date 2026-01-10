@@ -1,0 +1,46 @@
+# ================================
+# Python
+# ================================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# ================================
+# Recon output / runtime data
+# ================================
+data/
+
+# Target lists (can contain sensitive scopes)
+docs/targets.txt
+
+# ================================
+# Logs & temp files
+# ================================
+*.log
+*.tmp
+*.swp
+*.bak
+
+# ================================
+# OS-specific junk
+# ================================
+.DS_Store
+Thumbs.db
+
+# ================================
+# IDE / editor
+# ================================
+.vscode/
+.idea/
+
+# ================================
+# Secrets / overrides
+# ================================
+.env
+config.local.py
