@@ -26,22 +26,39 @@
 # the datetime folder creation needs to check if 
 # correct datetime, probably just fix it yourself
 # clean all text at input
+# handle already having a folder for the day
 
 #imports
 from __future__ import annotations
 
 import os.path    #https://stackoverflow.com/questions/82831/how-do-i-check-whether-a-file-exists-without-exceptions
-import datetime   #https://stackoverflow.com/questions/3743222/how-do-i-convert-a-datetime-to-date
 import subprocess #https://stackoverflow.com/questions/74763554/how-to-use-subprocess-run-method-in-python
+from datetime import date, timedelta
+
+
+#Constants
+DATE_TODAY = date.today()
+DATE_YESTERDAY = date.today() - timedelta(days=1)
+
+#in order to diff, we should convert sections to sets, and compare sets
+def convert_to_set(file: str) -> set[str]: 
+
+    """converts file at filepath to a set"""
+
+    out = set()
+    with open(file) as f:
+        for line in f:
+            out.add(line)
+    
+    return out
 
 #inits
 targets = []
-
 bug_bounty_header = "User-Agent: HackerOne-Research"
 contact_header = "For issues please contact: smallseacreature@wearehackerone.com"
 
 #Prgram start
-print("H O R U S\n\n")
+print("\nH O R U S\n")
 
 #process target list
 print("[*] Processing target list...")
@@ -67,7 +84,7 @@ for target in targets:
         os.makedirs(f"./data/{target}")
 
     #make new folder with timestamped name within target folder
-    os.makedirs(f"./data/{target}/{datetime.datetime.now().date()}")
+    os.makedirs(f"./data/{target}/{DATE_TODAY}")
 
     #time to run some recon
 
@@ -81,13 +98,18 @@ for target in targets:
     ]
 
     subfinder_output = subprocess.run(subfinder_cmd, capture_output=True, text=True)
-    with open(f"./data/{target}/subdomains.txt", "w") as f:
+    with open(f"./data/{target}/{DATE_TODAY}/subdomains.txt", "w") as f:
         for line in subfinder_output.stdout.splitlines():
             f.write(line.strip() + "\n")
 
     print("[*] Subfinder Complete")
 
+    #convert old file to set, convert new file to set, compare
 
-    #in order to diff, we should convert sections to sets, and compare sets
-    def convert_to_set(file) -> set[Str]: 
-        pass
+    todays_subdomains     = convert_to_set(f"./data/{target}/{DATE_TODAY}/subdomains.txt")
+    yesterdays_subdomains = convert_to_set(f"./data/{target}/{DATE_YESTERDAY}/subdomains.txt")
+
+    if todays_subdomains == yesterdays_subdomains:
+        print("they are the same")
+    else:
+        print("different")
