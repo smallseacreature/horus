@@ -13,7 +13,6 @@
 # see if there is a difference between them, if so, alert
 
 #TODO 
-# generate empty target list if targets does not exist
 # look in current directory for likely files if targets does not exist
 # clean targets list before placing in list
 # make code comments fancier, better organization
@@ -27,6 +26,9 @@
 # correct datetime, probably just fix it yourself
 # clean all text at input
 # handle already having a folder for the day
+# check if email has not been changed
+# check if exit() is the right move there
+# handle no folder for yesterday
 
 #imports
 from __future__ import annotations
@@ -40,6 +42,8 @@ from datetime import date, timedelta
 DATE_TODAY = date.today()
 DATE_YESTERDAY = date.today() - timedelta(days=1)
 
+RATE_LIMIT = 25
+
 #in order to diff, we should convert sections to sets, and compare sets
 def convert_to_set(file: str) -> set[str]: 
 
@@ -48,14 +52,15 @@ def convert_to_set(file: str) -> set[str]:
     out = set()
     with open(file) as f:
         for line in f:
-            out.add(line)
+            out.add(line.strip())
     
     return out
+
 
 #inits
 targets = []
 bug_bounty_header = "User-Agent: HackerOne-Research"
-contact_header = "For issues please contact: smallseacreature@wearehackerone.com"
+contact_header = "X-Contact: smallseacreature@wearehackerone.com"
 
 #Prgram start
 print("\nH O R U S\n")
@@ -65,10 +70,16 @@ print("[*] Processing target list...")
 try:
     with open("./docs/targets.txt") as target_list:
         for line in target_list:
+            if line == "Enter in website names, ie 'google.com', seperated by newlines":
+                print("Please edit target list")
+                exit()
             targets.append(line.strip())
 
 except FileNotFoundError as e:
     print(f"File Not Found: {e}")
+    with open("./docs/targets.txt", "x") as target_list:
+        target_list.write("Enter in website names, ie 'google.com', seperated by newlines")
+    print("Targets.txt created in ./docs")
 
 print("[*] Done\n")
 
@@ -83,21 +94,26 @@ for target in targets:
         print(f"[*] Creating folder for {target}")
         os.makedirs(f"./data/{target}")
 
-    #make new folder with timestamped name within target folder
-    os.makedirs(f"./data/{target}/{DATE_TODAY}")
+    try:
+        #make new folder with timestamped name within target folder
+        os.makedirs(f"./data/{target}/{DATE_TODAY}")
+    except FileExistsError as e:
+        print(f"Error: {e}, file will be overwritten")
 
     #time to run some recon
 
     #SUBFINDER
     #[] avoids shell injection
-    print("[*] Starting Subfinder")
+    print(f"[*] Starting Subfinder on {target}")
     subfinder_cmd = [
         "subfinder", 
         "-d", target, 
         "-silent", #only outputs subdomains
     ]
 
+    #run subfinder
     subfinder_output = subprocess.run(subfinder_cmd, capture_output=True, text=True)
+
     with open(f"./data/{target}/{DATE_TODAY}/subdomains.txt", "w") as f:
         for line in subfinder_output.stdout.splitlines():
             f.write(line.strip() + "\n")
@@ -105,7 +121,6 @@ for target in targets:
     print("[*] Subfinder Complete")
 
     #convert old file to set, convert new file to set, compare
-
     todays_subdomains     = convert_to_set(f"./data/{target}/{DATE_TODAY}/subdomains.txt")
     yesterdays_subdomains = convert_to_set(f"./data/{target}/{DATE_YESTERDAY}/subdomains.txt")
 
@@ -113,3 +128,27 @@ for target in targets:
         print("they are the same")
     else:
         print("different")
+
+    #run httpx on todays subdomains
+    print(f"[*] Starting httpx on {target} subdomains")
+    cmd = [
+    "httpx",
+    "-silent",
+    "-sc",
+    "-title",
+    "-td",
+    "-fr",
+    "-j",
+    "-rl", str(RATE_LIMIT),
+    "-H", bug_bounty_header,
+    "-H", contact_header,
+    "-o", f"./data/{target}/{DATE_TODAY}/httpx.json"
+    ]
+
+    result = subprocess.run(
+        cmd,
+        input="\n".join(todays_subdomains),
+        text=True,
+        capture_output=True,
+        check=False,
+    )
