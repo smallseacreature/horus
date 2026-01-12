@@ -24,6 +24,8 @@
 # throw error if the target syntax is invalid
 # maybe switch os to pathlib 
 # the datetime folder creation needs to check if 
+# correct datetime, probably just fix it yourself
+# clean all text at input
 
 #imports
 from __future__ import annotations
@@ -38,7 +40,11 @@ targets = []
 bug_bounty_header = "User-Agent: HackerOne-Research"
 contact_header = "For issues please contact: smallseacreature@wearehackerone.com"
 
+#Prgram start
+print("H O R U S\n\n")
+
 #process target list
+print("[*] Processing target list...")
 try:
     with open("./docs/targets.txt") as target_list:
         for line in target_list:
@@ -47,9 +53,14 @@ try:
 except FileNotFoundError as e:
     print(f"File Not Found: {e}")
 
+print("[*] Done\n")
+
 #run recon on each target
 #see if folder exists
+
 for target in targets:
+    print(f"[*] starting diff on {target}")
+
     if os.path.isdir("./data/" + target) == False:
         print(f"[!] No folder for {target}")
         print(f"[*] Creating folder for {target}")
@@ -62,7 +73,7 @@ for target in targets:
 
     #SUBFINDER
     #[] avoids shell injection
-
+    print("[*] Starting Subfinder")
     subfinder_cmd = [
         "subfinder", 
         "-d", target, 
@@ -70,7 +81,13 @@ for target in targets:
     ]
 
     subfinder_output = subprocess.run(subfinder_cmd, capture_output=True, text=True)
-    print(subfinder_output)
+    with open(f"./data/{target}/subdomains.txt", "w") as f:
+        for line in subfinder_output.stdout.splitlines():
+            f.write(line.strip() + "\n")
+
+    print("[*] Subfinder Complete")
 
 
-
+    #in order to diff, we should convert sections to sets, and compare sets
+    def convert_to_set(file) -> set[Str]: 
+        pass
