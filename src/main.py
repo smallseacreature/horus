@@ -152,3 +152,5 @@ for target in targets:
         capture_output=True,
         check=False,
     )
+
+# load JSONL into structured data for diffing
