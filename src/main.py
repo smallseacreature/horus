@@ -32,11 +32,11 @@
 
 #imports
 from __future__ import annotations
-
-import os.path    #https://stackoverflow.com/questions/82831/how-do-i-check-whether-a-file-exists-without-exceptions
-import subprocess #https://stackoverflow.com/questions/74763554/how-to-use-subprocess-run-method-in-python
+from shutil import which            #https://stackoverflow.com/questions/9877462/is-there-a-python-equivalent-to-the-which-command
+import os.path                      #https://stackoverflow.com/questions/82831/how-do-i-check-whether-a-file-exists-without-exceptions
+import subprocess                   #https://stackoverflow.com/questions/74763554/how-to-use-subprocess-run-method-in-python
 from datetime import date, timedelta
-import json #https://www.w3schools.com/python/python_json.asp
+import json                         #https://www.w3schools.com/python/python_json.asp
 
 
 #Constants
@@ -63,11 +63,16 @@ def convert_to_set(file: str) -> set[str]:
     return out
 
 def jsonl_to_dict(jsonl: str) -> dict:
+
+    """ convert json lines file at filepath to a python dictionary """
+
     out: dict = json.loads(jsonl)
     return(out)
 
 #Prgram start
 print("\nH O R U S\n")
+
+#TODO Implement which
 
 #process target list
 print("[*] Processing target list...")
@@ -158,4 +163,5 @@ for target in targets:
     )
 
 # load JSONL into structured data for diffing
-    todays_httpx = jsonl_to_dict(result)
+    todays_httpx = jsonl_to_dict(f"./data/{target}/{DATE_TODAY}/httpx.json")
+    yesterdays_httpx = jsonl_to_dict(f"./data/{target}/{DATE_YESTERDAY}/httpx.json")
