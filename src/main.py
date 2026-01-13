@@ -36,6 +36,7 @@ from __future__ import annotations
 import os.path    #https://stackoverflow.com/questions/82831/how-do-i-check-whether-a-file-exists-without-exceptions
 import subprocess #https://stackoverflow.com/questions/74763554/how-to-use-subprocess-run-method-in-python
 from datetime import date, timedelta
+import json #https://www.w3schools.com/python/python_json.asp
 
 
 #Constants
@@ -43,6 +44,11 @@ DATE_TODAY = date.today()
 DATE_YESTERDAY = date.today() - timedelta(days=1)
 
 RATE_LIMIT = 25
+
+#inits
+targets = []
+bug_bounty_header = "User-Agent: HackerOne-Research"
+contact_header = "X-Contact: smallseacreature@wearehackerone.com"
 
 #in order to diff, we should convert sections to sets, and compare sets
 def convert_to_set(file: str) -> set[str]: 
@@ -56,11 +62,9 @@ def convert_to_set(file: str) -> set[str]:
     
     return out
 
-
-#inits
-targets = []
-bug_bounty_header = "User-Agent: HackerOne-Research"
-contact_header = "X-Contact: smallseacreature@wearehackerone.com"
+def jsonl_to_dict(jsonl: str) -> dict:
+    out: dict = json.loads(jsonl)
+    return(out)
 
 #Prgram start
 print("\nH O R U S\n")
@@ -154,3 +158,4 @@ for target in targets:
     )
 
 # load JSONL into structured data for diffing
+    todays_httpx = jsonl_to_dict(result)
