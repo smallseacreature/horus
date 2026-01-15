@@ -69,10 +69,21 @@ def jsonl_to_dict(jsonl: str) -> dict:
     out: dict = json.loads(jsonl)
     return(out)
 
+def check_command(command):
+    """ return T/F on commands existence """
+    if which(command) == None:
+        return False
+    else:
+        return True
+
 #Prgram start
 print("\nH O R U S\n")
+commands_to_run = ["httpx", "subfinder"]
+for command in commands_to_run:
+    if check_command(command) != True:
+        print(f"{command} is not found, install or add to PATH")
+        exit()
 
-#TODO Implement which
 
 #process target list
 print("[*] Processing target list...")
@@ -165,3 +176,5 @@ for target in targets:
 # load JSONL into structured data for diffing
     todays_httpx = jsonl_to_dict(f"./data/{target}/{DATE_TODAY}/httpx.json")
     yesterdays_httpx = jsonl_to_dict(f"./data/{target}/{DATE_YESTERDAY}/httpx.json")
+
+    print(todays_httpx.keys())

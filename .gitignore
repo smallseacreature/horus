@@ -15,6 +15,7 @@ env/
 # Recon output / runtime data
 # ================================
 data/
+resume.cfg
 
 # Target lists (can contain sensitive scopes)
 docs/targets.txt
