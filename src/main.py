@@ -32,12 +32,11 @@
 
 #imports
 from __future__ import annotations
-from shutil import which            #https://stackoverflow.com/questions/9877462/is-there-a-python-equivalent-to-the-which-command
 import os.path                      #https://stackoverflow.com/questions/82831/how-do-i-check-whether-a-file-exists-without-exceptions
 import subprocess                   #https://stackoverflow.com/questions/74763554/how-to-use-subprocess-run-method-in-python
 from datetime import date, timedelta
-import json                         #https://www.w3schools.com/python/python_json.asp
 
+from utils import *
 
 #Constants
 DATE_TODAY = date.today()
@@ -50,31 +49,7 @@ targets = []
 bug_bounty_header = "User-Agent: HackerOne-Research"
 contact_header = "X-Contact: smallseacreature@wearehackerone.com"
 
-#in order to diff, we should convert sections to sets, and compare sets
-def convert_to_set(file: str) -> set[str]: 
-
-    """converts file at filepath to a set"""
-
-    out = set()
-    with open(file) as f:
-        for line in f:
-            out.add(line.strip())
-    
-    return out
-
-def jsonl_to_dict(jsonl: str) -> dict:
-
-    """ convert json lines file at filepath to a python dictionary """
-
-    out: dict = json.loads(jsonl)
-    return(out)
-
-def check_command(command):
-    """ return T/F on commands existence """
-    if which(command) == None:
-        return False
-    else:
-        return True
+#
 
 #Prgram start
 print("\nH O R U S\n")
