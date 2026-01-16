@@ -32,8 +32,8 @@
 
 #imports
 from __future__ import annotations
-import os.path                      #https://stackoverflow.com/questions/82831/how-do-i-check-whether-a-file-exists-without-exceptions
-import subprocess                   #https://stackoverflow.com/questions/74763554/how-to-use-subprocess-run-method-in-python
+import os.path                     
+import subprocess                   
 from datetime import date, timedelta
 
 from utils import *
@@ -48,35 +48,13 @@ RATE_LIMIT = 25
 targets = []
 bug_bounty_header = "User-Agent: HackerOne-Research"
 contact_header = "X-Contact: smallseacreature@wearehackerone.com"
-
+commands_to_run = ["httpx", "subfinder"]
 #
 
 #Prgram start
-print("\nH O R U S\n")
-commands_to_run = ["httpx", "subfinder"]
-for command in commands_to_run:
-    if check_command(command) != True:
-        print(f"{command} is not found, install or add to PATH")
-        exit()
 
 
-#process target list
-print("[*] Processing target list...")
-try:
-    with open("./docs/targets.txt") as target_list:
-        for line in target_list:
-            if line == "Enter in website names, ie 'google.com', seperated by newlines":
-                print("Please edit target list")
-                exit()
-            targets.append(line.strip())
 
-except FileNotFoundError as e:
-    print(f"File Not Found: {e}")
-    with open("./docs/targets.txt", "x") as target_list:
-        target_list.write("Enter in website names, ie 'google.com', seperated by newlines")
-    print("Targets.txt created in ./docs")
-
-print("[*] Done\n")
 
 #run recon on each target
 #see if folder exists
