@@ -5,6 +5,7 @@ from pathlib import Path
 def process_target_list(debug=False):
 
     """ Processes target list at filepath into a list """
+
     if debug:
         print("Processing target list")
 
@@ -12,7 +13,6 @@ def process_target_list(debug=False):
 
     filepath = "./docs/targets.txt"
     targets_file = Path(filepath)
-
 
     #creates list object from targets file
     if targets_file.is_file():

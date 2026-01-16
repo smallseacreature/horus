@@ -22,3 +22,5 @@ def program_start(security_tools: list[str], contact_header: str):
     if contact_header == "X-Contact: example@email.com":
         print("Please change the contact header, located at the top of the source code")
         exit()
+
+#TODO CHECK IF DATA FOLDER EXISTS
