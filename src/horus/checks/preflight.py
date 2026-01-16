@@ -1,3 +1,14 @@
+#preflight.py
+
+from shutil import which
+
+def check_command(command):
+    """ return T/F on commands existence """
+    if which(command) == None:
+        return False
+    else:
+        return True
+
 def program_start(security_tools: list[str], contact_header: str):
 
     """ Check to see program can run successfully, and if defaults have been changed"""

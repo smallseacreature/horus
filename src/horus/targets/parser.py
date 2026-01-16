@@ -1,5 +1,4 @@
-#in order to diff, we should convert sections to sets, and compare sets
-from shutil import which
+#parser.py
 import json
 
 def convert_to_set(file: str) -> set[str]: 
@@ -19,10 +18,3 @@ def jsonl_to_dict(jsonl: str) -> dict:
 
     out: dict = json.loads(jsonl)
     return(out)
-
-def check_command(command):
-    """ return T/F on commands existence """
-    if which(command) == None:
-        return False
-    else:
-        return True
