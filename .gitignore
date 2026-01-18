@@ -10,7 +10,7 @@ __pycache__/
 venv/
 .venv/
 env/
-./output/discord.env
+output/discord.env
 # ================================
 # Recon output / runtime data
 # ================================
