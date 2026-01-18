@@ -27,4 +27,4 @@ security_tools = ["httpx", "subfinder"]
 #===============
 # Path
 #===============
-
+DATA_DIR = "./data"
