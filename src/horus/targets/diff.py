@@ -1,5 +1,6 @@
-## just stolen from horus rn
+from horus.scanners import run_subfinder, run_httpx
 
+def 
 
 #convert old file to set, convert new file to set, compare
 todays_subdomains     = convert_to_set(f"./data/{target}/{DATE_TODAY}/subdomains.txt")
