@@ -26,7 +26,6 @@
 #imports
 from __future__ import annotations
 
-
 from horus.targets import process_target_list, convert_to_set, jsonl_to_dict
 from horus.checks import program_start, check_command
 import horus.config as config
