@@ -32,4 +32,3 @@ for target in targets:
 #===============
 # alert
 #===============
-discord_notify("test alert")

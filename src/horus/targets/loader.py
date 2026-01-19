@@ -11,7 +11,7 @@ def process_target_list(debug=False):
 
     targets = [] # empty list for valid targets
 
-    filepath = "./targets/targets.txt"
+    filepath = "./src/horus/targets/targets.txt"
     targets_file = Path(filepath)
 
     #creates list object from targets file

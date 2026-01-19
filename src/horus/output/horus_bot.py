@@ -10,5 +10,3 @@ if not WEBHOOK:
 
 def discord_notify(msg: str):
     requests.post(WEBHOOK, json={"content": msg}, timeout=15)
-
-discord_notify("test alert")
