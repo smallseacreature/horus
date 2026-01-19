@@ -1,12 +1,11 @@
 #Constants
 
-from datetime import date, timedelta
+from datetime import date
 
 #===============
 # Datetime
 #===============
 DATE_TODAY     = date.today()
-DATE_YESTERDAY = date.today() - timedelta(days=1)
 
 #===============
 # Compliance
