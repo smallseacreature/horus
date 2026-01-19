@@ -1,5 +1,6 @@
-from horus.targets import convert_to_set, jsonl_to_dict
-import paths
+from .parser import convert_to_set, jsonl_to_dict
+import horus.paths as paths
+
 
 #diff logic for data that already exists within ./data
 def diff_subdomains(target):

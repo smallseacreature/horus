@@ -1,7 +1,7 @@
 #preflight.py
 
 from shutil import which
-import config
+import horus.config as config
 
 def check_command(command):
     """ return T/F on commands existence """

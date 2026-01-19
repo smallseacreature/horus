@@ -1,5 +1,5 @@
 #loader.py
-import paths
+import horus.paths as paths
 from pathlib import Path
 
 def process_target_list(debug=False):
