@@ -24,7 +24,4 @@ contact_header    = "X-Contact: smallseacreature@wearehackerone.com"
 #===============
 security_tools = ["httpx", "subfinder"]
 
-#===============
-# Path
-#===============
-DATA_DIR = "./data"
+

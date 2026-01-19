@@ -29,3 +29,29 @@ from __future__ import annotations
 from horus.targets import process_target_list, convert_to_set, jsonl_to_dict
 from horus.checks import program_start, check_command
 import horus.config as config
+
+from horus.scanners import run_subfinder, run_httpx
+
+#===============
+# preflight
+#===============
+
+#===============
+# loader
+#===============
+targets = process_target_list()
+
+#===============
+# collection
+#===============
+for target in targets:
+    run_subfinder(target)
+    run_httpx(target)
+
+#===============
+# diff
+#===============
+
+#===============
+# alert
+#===============

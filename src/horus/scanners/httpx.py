@@ -18,7 +18,7 @@ def run_httpx(subdomains: set, target_folder: str):
         "-o", f"./data/{target_folder}/{config.DATE_TODAY}/httpx.json"
         ]
     
-    result = subprocess.run(
+    subprocess.run(
         httpx_cmd,
         input="\n".join(subdomains),
         text=True,
