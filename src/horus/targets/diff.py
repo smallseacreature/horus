@@ -10,7 +10,8 @@ def diff_subdomains(target):
 
     if state_dir.is_dir():
         state_subdomains = convert_to_set(state_dir / "subdomains.txt")
-
+    else:
+         state_subdomains = None
     new_subdomains = convert_to_set(run_dir / "subdomains.txt")
     
     if state_subdomains:

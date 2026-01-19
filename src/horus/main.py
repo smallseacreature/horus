@@ -9,26 +9,33 @@ from horus.checks import preflight_checks
 from horus.scanners import run_subfinder, run_httpx
 from horus.output import discord_notify
 
-#===============
-# preflight
-#===============
-preflight_checks(True)
+def main() -> int:
+    #===============
+    # preflight
+    #===============
+    preflight_checks(True)
 
-#===============
-# loader
-#===============
-targets = process_target_list()
+    #===============
+    # loader
+    #===============
+    targets = process_target_list()
 
-#===============
-# collection/diff
-#===============
-for target in targets:
-    run_subfinder(target)
-    run_httpx(target)
+    #===============
+    # collection/diff
+    #===============
+    for target in targets:
+        run_subfinder(target)
+        run_httpx(target)
 
-    diff_httpx(target)
-    diff_subdomains(target)
+        diff_httpx(target)
+        diff_subdomains(target)
 
-#===============
-# alert
-#===============
+    #===============
+    # alert
+    #===============
+
+
+    return 0
+
+if __name__ == "__main__":
+    raise SystemExit(main())

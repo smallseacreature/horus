@@ -4,11 +4,12 @@ import horus.paths as paths
 
 
 
-def run_subfinder(target):
+def run_subfinder(target: str) -> None:
     
     """intake a target, places a list of subdomains in ./data/{target}"""
 
-    run_dir = paths.target_run_dir(target)
+    out_file = paths.target_run_dir(target) / "subdomains.txt"
+    out_file.parent.mkdir(parents=True, exist_ok=True)
     
     subfinder_cmd = [
             "subfinder", 
@@ -24,6 +25,6 @@ def run_subfinder(target):
         )
 
     #write to file in data folder
-    with open(run_dir / "subdomains.txt", "w") as f:
+    with out_file.open("w") as f:
         for line in result.stdout.splitlines():
             f.write(line.strip() + "\n")
