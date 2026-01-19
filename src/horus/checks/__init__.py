@@ -1,3 +1,3 @@
-from preflight import check_command, program_start
+from preflight import preflight_checks
 
-__all__ = ["check_command", "program_start"]
+__all__ = ["preflight_checks"]

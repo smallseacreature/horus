@@ -1,26 +1,33 @@
-from horus.scanners import run_subfinder, run_httpx
 from horus.targets import convert_to_set, jsonl_to_dict
 import paths
 
-#TODO this doesn't work
-def diff_subdomains():
+#diff logic for data that already exists within ./data
+def diff_subdomains(target):
 
-    if paths.state_dir.is_dir():
-        state_subdomains   = convert_to_set(paths.state_dir)
+    state_dir = paths.target_state_dir(target)
+    run_dir = paths.target_run_dir(target)
 
-    new_subdomains     = convert_to_set(paths.run_dir)
+    if state_dir.is_dir():
+        state_subdomains = convert_to_set(state_dir / "subdomains.txt")
+
+    new_subdomains = convert_to_set(run_dir / "subdomains.txt")
     
-
-    #convert old file to set, convert new file to set, compare
-    if new_subdomains == state_subdomains:
-        print("they are the same")
+    if state_subdomains:
+            if new_subdomains == state_subdomains:
+                print("they are the same")
+            else:
+                print("different")
     else:
-        print("different")
+         print(f"first run on {target}")
+    #convert old file to set, convert new file to set, compare
 
+def diff_httpx(target):
 
+    state_dir = paths.target_state_dir(target)
+    run_dir = paths.target_run_dir(target)
 
-# load JSONL into structured data for diffing
-todays_httpx     = jsonl_to_dict(f"./data/{target}/{DATE_TODAY}/httpx.json")
-yesterdays_httpx = jsonl_to_dict(f"./data/{target}/{DATE_YESTERDAY}/httpx.json")
+    # load JSONL into structured data for diffing
+    new_httpx     = jsonl_to_dict(state_dir / "httpx.json")
+    state_httpx   = jsonl_to_dict(run_dir / "httpx.json")
 
-print(todays_httpx.keys())
+    print(new_httpx.keys())

@@ -26,15 +26,15 @@
 #imports
 from __future__ import annotations
 
-from horus.targets import process_target_list, convert_to_set, jsonl_to_dict
-from horus.checks import program_start, check_command
-import horus.config as config
-
+from horus.targets import process_target_list, diff_subdomains, diff_httpx
+from horus.checks import preflight_checks
 from horus.scanners import run_subfinder, run_httpx
+from horus.output import discord_notify
 
 #===============
 # preflight
 #===============
+preflight_checks(True)
 
 #===============
 # loader
@@ -42,16 +42,16 @@ from horus.scanners import run_subfinder, run_httpx
 targets = process_target_list()
 
 #===============
-# collection
+# collection/diff
 #===============
 for target in targets:
     run_subfinder(target)
     run_httpx(target)
 
-#===============
-# diff
-#===============
+    diff_httpx(target)
+    diff_subdomains(target)
 
 #===============
 # alert
 #===============
+discord_notify("test alert")

@@ -9,10 +9,3 @@ def target_run_dir(target: str) -> Path:
 def target_state_dir(target: str) -> Path:
     """generate path object for location of the most recent scan data"""
     return config.DATA_DIR / target / "state"
-
-#===============
-# Constants
-#===============
-DATA_DIR = "./data"
-run_dir = target_run_dir()
-state_dir = target_state_dir()

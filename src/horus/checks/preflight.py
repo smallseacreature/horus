@@ -1,6 +1,7 @@
 #preflight.py
 
 from shutil import which
+import config
 
 def check_command(command):
     """ return T/F on commands existence """
@@ -9,18 +10,24 @@ def check_command(command):
     else:
         return True
 
-def program_start(security_tools: list[str], contact_header: str):
-
-    """ Check to see program can run successfully, and if defaults have been changed"""
-    print("\nH O R U S\n")
-
+def check_tools():
+    security_tools = config.security_tools
     for tool in security_tools:
         if check_command(tool) != True:
-            print(f"{tool} is not found, install or add to PATH")
+            print(f"[X] FATAL ERROR: {tool} is not found, install or add to PATH")
             exit()
 
-    if contact_header == "X-Contact: example@email.com":
+def check_defaults():
+    if config.contact_header == "X-Contact: example@email.com":
         print("Please change the contact header, located at the top of the source code")
         exit()
 
-#TODO CHECK IF DATA FOLDER EXISTS
+def preflight_checks(DEBUG = False):
+    if DEBUG:
+        print("Starting preflight")
+
+    check_tools()
+    check_defaults()
+
+    if DEBUG:
+        print("Preflight checks GOOD")
