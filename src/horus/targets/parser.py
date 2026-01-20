@@ -86,6 +86,8 @@ def subfinder_lists_to_message(subdomains_added, subdomains_removed) -> str:
 # DeepDiff httpx Processor
 #=========================
 
+#TODO this whole section needs rework to ouput correctly
+
 #RE Statements
 URL_RE   = re.compile(r"\['(?P<url>https?://[^']+)'\]")
 FIELD_RE = re.compile(r"\]\['(?P<field>[^']+)'\]")   # grabs dict fields like ['tech']
@@ -105,7 +107,7 @@ def parse_httpx_path(path: str) -> Tuple[Optional[str], Optional[str], Optional[
     url = url_match.group("url") if url_match else None
 
     url = no_embed(url)
-    
+
     fields = FIELD_RE.findall(path)
     field = fields[-1] if fields else None
 
