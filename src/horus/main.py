@@ -23,25 +23,17 @@ def main() -> int:
     targets = process_target_list(DEBUG)
 
     #===============
-    # collection/diff
+    # diff
     #===============
     for target in targets:
         run_subfinder(target, DEBUG)
         run_httpx(target)
 
-        diff_httpx(target)
-        diff_subdomains(target)
+        subdomain_alerts = diff_subdomains(target)
+        httpx_alerts = diff_httpx(target)
 
-    #===============
-    # alert
-    #===============
-
-
-    #===============
-    # Update state
-    #===============
-        update_target_state(target)
-    
+        discord_notify(subdomain_alerts)
+        discord_notify(httpx_alerts)
 
     return 0
 

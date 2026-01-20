@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from .parser import convert_to_set, process_httpx_jsonl, httpx_deepdiff_to_events, httpx_events_to_message
+from .parser import convert_to_set, process_httpx_jsonl, httpx_deepdiff_to_events, httpx_events_to_message, \
+                    subfinder_lists_to_message
 import horus.paths as paths
 from pathlib import Path
 import shutil
@@ -44,21 +45,29 @@ def subdomains_to_DeepDiff(target: str, debug: bool = False):
     state_dir = paths.target_state_dir(target)
     run_dir   = paths.target_run_dir(target)
 
-    state_dir = convert_to_set(state_dir)
-    run_dir   = convert_to_set(run_dir)
+    state_dir = convert_to_set(state_dir / "subdomains.txt")
+    run_dir   = convert_to_set(run_dir / "subdomains.txt")
     
     diff = DeepDiff(state_dir, run_dir)
 
     return diff
 
-def diff_subdomains(diff: dict) -> tuple[list, list]:
+def diff_subdomains(target) -> str:
+
     subdomains_added   = []
     subdomains_removed = []
 
-    subdomains_added.extend(diff["dictionary_item_added"])
-    subdomains_removed.extend(diff["dictionary_item_removed"])
-    
-    return subdomains_added, subdomains_removed
+    diff = subdomains_to_DeepDiff(target)
+
+    if "dictionary_item_added" in diff.keys():
+        subdomains_added.extend(diff["dictionary_item_added"])
+        
+    if "dictionary_item_removed" in diff.keys():
+        subdomains_removed.extend(diff["dictionary_item_removed"])
+
+    subdomain_messages = subfinder_lists_to_message(subdomains_added, subdomains_removed)
+
+    return subdomain_messages
 
 #====================
 # httpx
@@ -81,7 +90,7 @@ def httpx_to_DeepDiff(target):
 
     return diff
 
-def diff_httpx(target):
+def diff_httpx(target) -> str:
 
     """diff the httpx of a target, output the messages for discord """
 

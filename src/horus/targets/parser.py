@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Any
 import re
 from typing import Optional, Tuple
-
+from horus.output import no_embed
 #=========================
 # Simple Conversions
 #=========================
@@ -37,9 +37,6 @@ def process_httpx_jsonl(jsonl: Path, debug: bool = False) -> dict[str, Any]:
 
     with jsonl.open("r", encoding="utf-8") as f:
 
-        if debug:
-            print("opening jsonl")
-
         for line in f:
             line = line.strip()
             if not line:
@@ -67,6 +64,7 @@ def process_httpx_jsonl(jsonl: Path, debug: bool = False) -> dict[str, Any]:
 #=========================
 # DeepDiff subfinder Processor
 #=========================
+
 def subfinder_lists_to_message(subdomains_added, subdomains_removed) -> str:
     lines: list[str] = []
 
@@ -82,13 +80,14 @@ def subfinder_lists_to_message(subdomains_added, subdomains_removed) -> str:
         for removed in subdomains_added:
             lines.append(f"[-] Subdomains removed {removed}")
 
-    return "\n".join(lines) if lines else "No changes detected."
+    return "\n".join(lines)
+
 #=========================
 # DeepDiff httpx Processor
 #=========================
 
 #RE Statements
-URL_RE   = re.compile(r"root\['(?P<url>https?://[^']+)'\]")
+URL_RE   = re.compile(r"\['(?P<url>https?://[^']+)'\]")
 FIELD_RE = re.compile(r"\]\['(?P<field>[^']+)'\]")   # grabs dict fields like ['tech']
 INDEX_RE = re.compile(r"\[(?P<idx>\d+)\]$")          # trailing [0]
 
@@ -105,6 +104,8 @@ def parse_httpx_path(path: str) -> Tuple[Optional[str], Optional[str], Optional[
 
     url = url_match.group("url") if url_match else None
 
+    url = no_embed(url)
+    
     fields = FIELD_RE.findall(path)
     field = fields[-1] if fields else None
 
@@ -114,48 +115,58 @@ def parse_httpx_path(path: str) -> Tuple[Optional[str], Optional[str], Optional[
     return url, field, idx
 
 def httpx_deepdiff_to_events(diff: dict) -> list[dict]:
-
-    """ takes in diff dict, outputs list of events"""
-
     events: list[dict] = []
 
-    # removed URLs/keys
+    # removed URLs/keys (dict-key removals)
     for path in diff.get("dictionary_item_removed", []):
         url, _, _ = parse_httpx_path(path)
-        events.append({"type": "URL_REMOVED", "url": url or path})
+        events.append({
+            "type": "URL_REMOVED",
+            "url": url,              # may be None
+            "raw_path": path,
+        })
 
-    # values changed (old/new payload)
+    # values changed (dict path -> {old_value,new_value})
     for path, payload in diff.get("values_changed", {}).items():
         url, field, idx = parse_httpx_path(path)
         events.append({
             "type": "VALUE_CHANGED",
-            "url": url or path,
+            "url": url,
             "field": field,
             "index": idx,
             "old": payload.get("old_value"),
             "new": payload.get("new_value"),
+            "raw_path": path,
         })
 
-    # list element added
+    # list element added (often root[7] -> "https://...")
     for path, value in diff.get("iterable_item_added", {}).items():
         url, field, idx = parse_httpx_path(path)
+
+        # If the path has no URL (root[7]) but the value IS a URL, use the value as the url.
+        url_from_value = value.rstrip("/") if isinstance(value, str) and value.startswith(("http://", "https://")) else None
+
         events.append({
             "type": "ITEM_ADDED",
-            "url": url or path,
+            "url": url or url_from_value,
             "field": field,
             "index": idx,
             "value": value,
+            "raw_path": path,
         })
 
     # list element removed
     for path, value in diff.get("iterable_item_removed", {}).items():
         url, field, idx = parse_httpx_path(path)
+        url_from_value = value.rstrip("/") if isinstance(value, str) and value.startswith(("http://", "https://")) else None
+
         events.append({
             "type": "ITEM_REMOVED",
-            "url": url or path,
+            "url": url or url_from_value,
             "field": field,
             "index": idx,
             "value": value,
+            "raw_path": path,
         })
 
     return events
