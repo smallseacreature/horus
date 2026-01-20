@@ -4,10 +4,13 @@ import horus.paths as paths
 
 
 
-def run_subfinder(target: str) -> None:
+def run_subfinder(target: str, debug: bool = False) -> None:
     
     """intake a target, places a list of subdomains in ./data/{target}"""
 
+    if debug:
+        print(f"Starting subfinder on {target}")
+        
     out_file = paths.target_run_dir(target) / "subdomains.txt"
     out_file.parent.mkdir(parents=True, exist_ok=True)
     

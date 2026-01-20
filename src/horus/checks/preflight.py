@@ -23,6 +23,8 @@ def check_defaults():
         print("Please change the contact header, located at the top of the source code")
         exit()
 
+#TODO check for .env
+
 def preflight_checks(DEBUG = False):
     if DEBUG:
         print("Starting preflight checks")

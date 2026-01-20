@@ -4,7 +4,7 @@
 #imports
 from __future__ import annotations
 
-from horus.targets import process_target_list, diff_subdomains, diff_httpx
+from horus.targets import process_target_list, diff_subdomains, diff_httpx, update_target_state
 from horus.checks import preflight_checks
 from horus.scanners import run_subfinder, run_httpx
 from horus.output import discord_notify
@@ -26,7 +26,7 @@ def main() -> int:
     # collection/diff
     #===============
     for target in targets:
-        run_subfinder(target)
+        run_subfinder(target, DEBUG)
         run_httpx(target)
 
         diff_httpx(target)
@@ -40,7 +40,7 @@ def main() -> int:
     #===============
     # Update state
     #===============
-
+        update_target_state(target)
     
 
     return 0
