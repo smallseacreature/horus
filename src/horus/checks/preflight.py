@@ -2,6 +2,7 @@
 
 from shutil import which
 import horus.config as config
+from pathlib import Path
 
 def check_command(command):
     """ return T/F on commands existence """
@@ -24,7 +25,7 @@ def check_defaults():
 
 def preflight_checks(DEBUG = False):
     if DEBUG:
-        print("Starting preflight")
+        print("Starting preflight checks")
 
     check_tools()
     check_defaults()

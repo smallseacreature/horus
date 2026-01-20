@@ -3,7 +3,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-def convert_to_set(file: str) -> set[str]: 
+def convert_to_set(file: Path) -> set[str]: 
 
     """converts file at filepath to a set"""
 

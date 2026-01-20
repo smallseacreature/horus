@@ -9,16 +9,18 @@ from horus.checks import preflight_checks
 from horus.scanners import run_subfinder, run_httpx
 from horus.output import discord_notify
 
+DEBUG = True
+
 def main() -> int:
     #===============
     # preflight
     #===============
-    preflight_checks(True)
+    preflight_checks(DEBUG)
 
     #===============
     # loader
     #===============
-    targets = process_target_list()
+    targets = process_target_list(DEBUG)
 
     #===============
     # collection/diff
@@ -34,6 +36,12 @@ def main() -> int:
     # alert
     #===============
 
+
+    #===============
+    # Update state
+    #===============
+
+    
 
     return 0
 

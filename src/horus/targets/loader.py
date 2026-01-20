@@ -2,7 +2,7 @@
 import horus.paths as paths
 from pathlib import Path
 
-def process_target_list(debug=False):
+def process_target_list(debug=False) -> list[str]:
 
     """ Processes target list at filepath into a list """
 
@@ -35,7 +35,7 @@ def process_target_list(debug=False):
 
         if not targets:
             print("[!] No targets in target list")
-            return None
+            return exit()
         
     #creates file if it does not exist (for some reason)     
     else:
@@ -44,6 +44,6 @@ def process_target_list(debug=False):
         with open("./docs/targets.txt", "x") as target_list:
             target_list.write("Enter in website names, ie 'google.com', seperated by newlines")
         print("Targets.txt created in ./docs")
-        return None
+        exit()
     
     return targets
