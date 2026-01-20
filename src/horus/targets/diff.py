@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from .parser import convert_to_set, process_httpx_jsonl
+from .parser import convert_to_set, process_httpx_jsonl, httpx_deepdiff_to_events, httpx_events_to_message
 import horus.paths as paths
 from pathlib import Path
 import shutil
@@ -8,42 +8,10 @@ from deepdiff import DeepDiff
 
 DEBUG = True
 
-def process_httpx_diff(diff) -> tuple[list, list]:
+#====================
+# Helper Functions
+#====================
 
-    """converts deepdiff output to items """
-    items_removed = [] #the httpx probe failed where it once succeeded 
-    items_added   = [] #new live hosts
-
-
-    if "dictionary_item_removed" in diff:
-        items_removed.extend(diff["dictionary_item_removed"])
-
-    if 'dictionary_item_added' in diff:
-        items_added.extend(diff['dictionary_item_added'])
-
-    if 'values_changed' in diff:
-        for change in diff:
-            url = change.get('root')
-            old_value = change.get('old_value')
-            new_value = change.get('new_value')
-
-    return items_added, items_removed
-
-def process_subfinder_diff(diff: DeepDiff) -> tuple[list, list]:
-
-    """converts subfinder DeepDiff to list of added and removed"""
-
-    subdomains_removed = []
-    subdomains_added   = []
-
-    if "dictionary_item_removed" in diff:
-        subdomains_removed.extend(diff["dictionary_item_removed"])
-
-    if 'dictionary_item_added' in diff:
-        subdomains_added.extend(diff['dictionary_item_added'])
-    
-    return subdomains_removed, subdomains_added
-     
 def check_for_state(target: str, debug:bool = False) -> bool:
 
     """ return bool on state directories existence in target folder"""
@@ -67,9 +35,11 @@ def update_target_state(target: str, debug: bool = False):
 
     copy_dir_contents(run_dir, state_dir)
 
-#diff logic for data that already exists within ./data
+#====================
+# Subdomains
+#====================
 
-def diff_subdomains(target: str, debug: bool = False):
+def subdomains_to_DeepDiff(target: str, debug: bool = False):
 
     state_dir = paths.target_state_dir(target)
     run_dir   = paths.target_run_dir(target)
@@ -79,9 +49,22 @@ def diff_subdomains(target: str, debug: bool = False):
     
     diff = DeepDiff(state_dir, run_dir)
 
+    return diff
 
+def diff_subdomains(diff: dict) -> tuple[list, list]:
+    subdomains_added   = []
+    subdomains_removed = []
 
-def diff_httpx(target):
+    subdomains_added.extend(diff["dictionary_item_added"])
+    subdomains_removed.extend(diff["dictionary_item_removed"])
+    
+    return subdomains_added, subdomains_removed
+
+#====================
+# httpx
+#====================
+
+def httpx_to_DeepDiff(target):
     # we care about keys url, tech and status code
 
     state_dir = paths.target_state_dir(target)
@@ -96,6 +79,14 @@ def diff_httpx(target):
 
     diff = DeepDiff(state_httpx, run_httpx)
 
-    print(diff)
-    
+    return diff
 
+def diff_httpx(target):
+
+    """diff the httpx of a target, output the messages for discord """
+
+    httpx_diff      = httpx_to_DeepDiff(target)
+    httpx_events    = httpx_deepdiff_to_events(httpx_diff)
+    httpx_messages  = httpx_events_to_message(httpx_events)
+
+    return httpx_messages

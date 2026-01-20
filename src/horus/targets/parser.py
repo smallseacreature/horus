@@ -5,9 +5,9 @@ from typing import Any
 import re
 from typing import Optional, Tuple
 
-#====================
+#=========================
 # Simple Conversions
-#====================
+#=========================
 
 def convert_to_set(file: Path) -> set[str]: 
 
@@ -20,9 +20,9 @@ def convert_to_set(file: Path) -> set[str]:
     
     return out
 
-#====================
+#=========================
 # Json Processor
-#====================
+#=========================
 
 def process_httpx_jsonl(jsonl: Path, debug: bool = False) -> dict[str, Any]:
 
@@ -64,24 +64,46 @@ def process_httpx_jsonl(jsonl: Path, debug: bool = False) -> dict[str, Any]:
 
     return out
 
-#====================
-# DeepDiff Processor
-#====================
+#=========================
+# DeepDiff subfinder Processor
+#=========================
+def subfinder_lists_to_message(subdomains_added, subdomains_removed) -> str:
+    lines: list[str] = []
+
+    if not subdomains_added:
+        lines.append(f"No subdomains added")
+    else:
+        for added in subdomains_added:
+            lines.append(f"[+] Subdomains added {added}")
+
+    if not subdomains_removed:
+        lines.append(f"No subdomains removed")
+    else:
+        for removed in subdomains_added:
+            lines.append(f"[-] Subdomains removed {removed}")
+
+    return "\n".join(lines) if lines else "No changes detected."
+#=========================
+# DeepDiff httpx Processor
+#=========================
 
 #RE Statements
 URL_RE   = re.compile(r"root\['(?P<url>https?://[^']+)'\]")
 FIELD_RE = re.compile(r"\]\['(?P<field>[^']+)'\]")   # grabs dict fields like ['tech']
 INDEX_RE = re.compile(r"\[(?P<idx>\d+)\]$")          # trailing [0]
 
-def parse_path(path: str) -> Tuple[Optional[str], Optional[str], Optional[int]]:
+def parse_httpx_path(path: str) -> Tuple[Optional[str], Optional[str], Optional[int]]:
     """
     Examples:
       root['https://www.newegg.com']
       root['https://eniac.newegg.com']['tech'][0]
     Returns: (url, field, index)
+
     """
-    url_m = URL_RE.search(path)
-    url = url_m.group("url") if url_m else None
+
+    url_match = URL_RE.search(path)
+
+    url = url_match.group("url") if url_match else None
 
     fields = FIELD_RE.findall(path)
     field = fields[-1] if fields else None
@@ -91,17 +113,20 @@ def parse_path(path: str) -> Tuple[Optional[str], Optional[str], Optional[int]]:
 
     return url, field, idx
 
-def deepdiff_to_events(diff: dict) -> list[dict]:
+def httpx_deepdiff_to_events(diff: dict) -> list[dict]:
+
+    """ takes in diff dict, outputs list of events"""
+
     events: list[dict] = []
 
     # removed URLs/keys
     for path in diff.get("dictionary_item_removed", []):
-        url, _, _ = parse_path(path)
+        url, _, _ = parse_httpx_path(path)
         events.append({"type": "URL_REMOVED", "url": url or path})
 
     # values changed (old/new payload)
     for path, payload in diff.get("values_changed", {}).items():
-        url, field, idx = parse_path(path)
+        url, field, idx = parse_httpx_path(path)
         events.append({
             "type": "VALUE_CHANGED",
             "url": url or path,
@@ -113,7 +138,7 @@ def deepdiff_to_events(diff: dict) -> list[dict]:
 
     # list element added
     for path, value in diff.get("iterable_item_added", {}).items():
-        url, field, idx = parse_path(path)
+        url, field, idx = parse_httpx_path(path)
         events.append({
             "type": "ITEM_ADDED",
             "url": url or path,
@@ -124,7 +149,7 @@ def deepdiff_to_events(diff: dict) -> list[dict]:
 
     # list element removed
     for path, value in diff.get("iterable_item_removed", {}).items():
-        url, field, idx = parse_path(path)
+        url, field, idx = parse_httpx_path(path)
         events.append({
             "type": "ITEM_REMOVED",
             "url": url or path,
@@ -135,7 +160,7 @@ def deepdiff_to_events(diff: dict) -> list[dict]:
 
     return events
 
-def events_to_message(events: list[dict], max_lines: int = 20) -> str:
+def httpx_events_to_message(events: list[dict], max_lines: int = 20) -> str:
     lines: list[str] = []
 
     for e in events:
