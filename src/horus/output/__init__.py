@@ -1,3 +1,3 @@
-from .horus_bot import discord_notify, no_embed
+from .horus_bot import discord_notify
 
-__all__ = "discord_notify", "no_embed"
+__all__ = "discord_notify",

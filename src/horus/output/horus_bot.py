@@ -10,9 +10,9 @@ WEBHOOK = os.getenv("DISCORD_WEBHOOK_URL")
 if not WEBHOOK:
     raise RuntimeError("DISCORD_WEBHOOK_URL not loaded")
 
-def no_embed(url) -> str:
-    """wrap urls in <> so discord bot doesn't embed them"""
-    return f"<{url}>"
+def discord_notify(msg):
+    payload = {
+        "content": msg,
+    }
 
-def discord_notify(msg: str):
-    requests.post(str(WEBHOOK), json={"content": msg}, timeout=15)
+    requests.post(str(WEBHOOK), json=payload, timeout=15)

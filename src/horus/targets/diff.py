@@ -38,7 +38,7 @@ def update_target_state(target: str, debug: bool = False):
 # Subdomains
 #====================
 
-def diff_subdomains(target: str, debug: bool = False) -> dict:
+def diff_subdomains(target: str, debug: bool = False):
 
     messages = {}
 
@@ -49,20 +49,19 @@ def diff_subdomains(target: str, debug: bool = False) -> dict:
     run_subdomains   = convert_to_set(run_dir   / "subdomains.txt")
 
     for subdomain in run_subdomains:
-        if subdomain in state_subdomains:
-            messages[subdomain] = f"[+] {subdomain} added"
-    
+        if subdomain not in state_subdomains:
+            messages[subdomain] = [f"[+] {subdomain} added"]
+
     for subdomain in state_subdomains:
         if subdomain not in run_subdomains:
-            messages[subdomain] = f"[-] {subdomain} removed"
+            messages[subdomain] = [f"[-] {subdomain} removed"]
 
-    
     return messages
 #====================
 # httpx
 #====================
 
-def diff_httpx(target: str) -> dict:
+def diff_httpx(target: str):
 
     """takes in 2 processed httpx dicts, output messages as difference"""
 
@@ -94,7 +93,7 @@ def diff_httpx(target: str) -> dict:
 
             if run_title != state_title:
                 title_msg = (
-                    f"[~] {url} title changed {state_title} → {run_title}"
+                    f"[~] <{url}> title changed {state_title} → {run_title}"
                 )
             else:
                 title_msg = None
@@ -125,15 +124,23 @@ def diff_httpx(target: str) -> dict:
             else:
                 techs_removed_msg = None
 
-            messages[url] = [status_code_msg, title_msg, techs_added_msg, techs_removed_msg]
+            msgs = [
+            m for m in (
+                status_code_msg,
+                title_msg,
+                techs_added_msg,
+                techs_removed_msg
+            )
+            if m
+            ]
+            if msgs:
+                messages[url] = msgs
 
         else:             # URL is not in state, add to URLs added
-            urls_added.append(url)
-            messages[url] = f"[+] {url} added"
+            messages[url] = [f"[+] {url} added"]
     for url in state:
 
         if url not in run:
-            urls_removed.append(url)
-            messages[url] = f"[-] {url} removed"
+            messages[url] = [f"[-] {url} removed"]
     
     return messages

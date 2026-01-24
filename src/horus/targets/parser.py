@@ -4,7 +4,6 @@ from pathlib import Path
 from typing import Any
 import re
 from typing import Optional, Tuple
-from horus.output import no_embed
 #=========================
 # Simple Conversions
 #=========================

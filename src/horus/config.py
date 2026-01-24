@@ -23,4 +23,8 @@ contact_header    = "X-Contact: smallseacreature@wearehackerone.com"
 #===============
 security_tools = ["httpx", "subfinder"]
 
+#===============
+# Output
+#===============
+MAX_DISCORD_MESSAGES = 25
 
