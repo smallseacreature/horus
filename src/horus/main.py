@@ -4,14 +4,14 @@
 #imports
 from __future__ import annotations
 
-from horus.targets import process_target_list, diff_subdomains, diff_httpx, update_target_state
+from horus.targets import process_target_list, diff_subdomains, diff_httpx
 from horus.checks import preflight_checks
 from horus.scanners import run_subfinder, run_httpx
 from horus.output import discord_notify
 
 DEBUG = True
 
-def main() -> int:
+def main():
     #===============
     # preflight
     #===============
@@ -25,17 +25,20 @@ def main() -> int:
     #===============
     # diff
     #===============
+
+
     for target in targets:
-        run_subfinder(target, DEBUG)
+
+        run_subfinder(target)
         run_httpx(target)
-
-        subdomain_alerts = diff_subdomains(target)
-        httpx_alerts = diff_httpx(target)
-
-        discord_notify(subdomain_alerts)
-        discord_notify(httpx_alerts)
-
-    return 0
+        
+        subdomain_messages = diff_subdomains(target)
+        httpx_messages = diff_httpx(target)
+    
+        print(subdomain_messages)
+        print(httpx_messages)
+        
+        
 
 if __name__ == "__main__":
     raise SystemExit(main())
