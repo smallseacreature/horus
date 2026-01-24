@@ -1,11 +1,9 @@
 from __future__ import annotations
 
-from .parser import convert_to_set, process_httpx_jsonl, httpx_deepdiff_to_events, httpx_events_to_message, \
-                    subfinder_lists_to_message
+from .parser import convert_to_set, process_httpx_jsonl
 import horus.paths as paths
 from pathlib import Path
 import shutil
-from deepdiff import DeepDiff
 
 DEBUG = True
 
@@ -40,62 +38,102 @@ def update_target_state(target: str, debug: bool = False):
 # Subdomains
 #====================
 
-def subdomains_to_DeepDiff(target: str, debug: bool = False):
+def diff_subdomains(target: str, debug: bool = False) -> dict:
+
+    messages = {}
 
     state_dir = paths.target_state_dir(target)
     run_dir   = paths.target_run_dir(target)
 
-    state_dir = convert_to_set(state_dir / "subdomains.txt")
-    run_dir   = convert_to_set(run_dir / "subdomains.txt")
+    state_subdomains = convert_to_set(state_dir / "subdomains.txt")
+    run_subdomains   = convert_to_set(run_dir   / "subdomains.txt")
+
+    for subdomain in run_subdomains:
+        if subdomain in state_subdomains:
+            messages[subdomain] = f"[+] {subdomain} added"
     
-    diff = DeepDiff(state_dir, run_dir)
+    for subdomain in state_subdomains:
+        if subdomain not in run_subdomains:
+            messages[subdomain] = f"[-] {subdomain} removed"
 
-    return diff
-
-def diff_subdomains(target) -> str:
-
-    subdomains_added   = []
-    subdomains_removed = []
-
-    diff = subdomains_to_DeepDiff(target)
-
-    if "dictionary_item_added" in diff.keys():
-        subdomains_added.extend(diff["dictionary_item_added"])
-        
-    if "dictionary_item_removed" in diff.keys():
-        subdomains_removed.extend(diff["dictionary_item_removed"])
-
-    subdomain_messages = subfinder_lists_to_message(subdomains_added, subdomains_removed)
-
-    return subdomain_messages
-
+    
+    return messages
 #====================
 # httpx
 #====================
 
-def httpx_to_DeepDiff(target):
-    # we care about keys url, tech and status code
+def diff_httpx(target: str) -> dict:
 
-    state_dir = paths.target_state_dir(target)
+    """takes in 2 processed httpx dicts, output messages as difference"""
+
+    messages     = {}
+    urls_added   = []
+    urls_removed = []
+
     run_dir   = paths.target_run_dir(target)
+    state_dir = paths.target_state_dir(target)
 
-    # load JSONL into dicts for diffing
-    run_httpx     = process_httpx_jsonl(state_dir / "httpx.json", DEBUG)
-    state_httpx   = process_httpx_jsonl(run_dir / "httpx.json", DEBUG)
+    run   = process_httpx_jsonl(run_dir   / "httpx.json")
+    state = process_httpx_jsonl(state_dir / "httpx.json")
+    for url in run:
+        if url in state:  # Pull info from each url shared with the state
 
-    run_httpx = sorted(run_httpx)
-    state_httpx = sorted(state_httpx)
+            run_status_code   = run[url].get("status_code")
+            state_status_code = state[url].get("status_code")
 
-    diff = DeepDiff(state_httpx, run_httpx)
+            if run_status_code != state_status_code:
+                status_code_msg = (
+                    f"[~] {url} status changed {state_status_code} → {run_status_code}"
+                )
+            else:
+                status_code_msg = None
 
-    return diff
 
-def diff_httpx(target) -> str:
+            run_title   = run[url].get("title")
+            state_title = state[url].get("title")
 
-    """diff the httpx of a target, output the messages for discord """
+            if run_title != state_title:
+                title_msg = (
+                    f"[~] {url} title changed {state_title} → {run_title}"
+                )
+            else:
+                title_msg = None
+            
+            run_tech   = run[url].get("tech")
+            state_tech = state[url].get("tech")
 
-    httpx_diff      = httpx_to_DeepDiff(target)
-    httpx_events    = httpx_deepdiff_to_events(httpx_diff)
-    httpx_messages  = httpx_events_to_message(httpx_events)
+            techs_added = []
+            techs_removed = []
 
-    return httpx_messages
+            if run_tech:
+                for tech in run_tech:
+                    if tech not in state_tech:
+                        techs_added.append(tech)
+            
+            if state_tech:
+                for tech in state_tech:
+                    if tech not in run_tech:
+                        techs_removed.append(tech)
+
+            if techs_added:
+                techs_added_msg = f"[+] Techs added: {', '.join(techs_added)}"
+            else:
+                techs_added_msg = None
+
+            if techs_removed:
+                techs_removed_msg = f"[-] Techs removed: {', '.join(techs_removed)}"
+            else:
+                techs_removed_msg = None
+
+            messages[url] = [status_code_msg, title_msg, techs_added_msg, techs_removed_msg]
+
+        else:             # URL is not in state, add to URLs added
+            urls_added.append(url)
+            messages[url] = f"[+] {url} added"
+    for url in state:
+
+        if url not in run:
+            urls_removed.append(url)
+            messages[url] = f"[-] {url} removed"
+    
+    return messages
