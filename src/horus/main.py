@@ -38,7 +38,7 @@ def main():
         
         #TODO change all from subdomain to subfinder for consistent naming
         subdomain_messages = diff_subdomains(target)
-        httpx_messages = diff_httpx(target)
+        httpx_messages     = diff_httpx(target)
 
         discord_notify(f"RESULTS FOR: {target}")
 
