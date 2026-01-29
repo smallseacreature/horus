@@ -38,15 +38,19 @@ def update_target_state(target: str, debug: bool = False):
 # Subdomains
 #====================
 
-def diff_subdomains(target: str, debug: bool = False):
+def diff_subdomains(target: str):
 
     messages = {}
 
     state_dir = paths.target_state_dir(target)
     run_dir   = paths.target_run_dir(target)
 
-    state_subdomains = convert_to_set(state_dir / "subdomains.txt")
     run_subdomains   = convert_to_set(run_dir   / "subdomains.txt")
+
+    if ((state_dir / "subdomains.txt").is_file()):
+        state_subdomains = convert_to_set(state_dir / "subdomains.txt")
+    else:
+        return messages
 
     for subdomain in run_subdomains:
         if subdomain not in state_subdomains:
@@ -66,8 +70,6 @@ def diff_httpx(target: str):
     """takes in 2 processed httpx dicts, output messages as difference"""
 
     messages     = {}
-    urls_added   = []
-    urls_removed = []
 
     run_dir   = paths.target_run_dir(target)
     state_dir = paths.target_state_dir(target)

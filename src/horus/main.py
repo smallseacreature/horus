@@ -26,10 +26,10 @@ def main():
     #===============
     # diff
     #===============
+    output_message = []
 
-    discord_notify("************HORUS************")
-    discord_notify(f"Date: {config.DATE_TODAY}")
-    discord_notify(" ")
+    output_message.append("************HORUS************")
+    output_message.append(f"Date: {config.DATE_TODAY}\n")
 
     for target in targets:
 
@@ -40,31 +40,34 @@ def main():
         subdomain_messages = diff_subdomains(target)
         httpx_messages     = diff_httpx(target)
 
-        discord_notify(f"RESULTS FOR: {target}")
+        output_message.append(f"RESULTS FOR: {target}\n")
 
         if subdomain_messages:
-            discord_notify("Changes found with Subfinder:")
+            output_message.append("Changes found with Subfinder:\n")
             if len(subdomain_messages) > config.MAX_DISCORD_MESSAGES:
-                discord_notify(f"[!] There are {len(subdomain_messages)} subfinder results changed")
-            for url, msgs in subdomain_messages.items():
-                for msg in msgs:
-                    discord_notify(msg)
+                output_message.append(f"[!] There are {len(subdomain_messages)} subfinder results changed\n")
+            print(subdomain_messages.items())
+                
         else:
-            discord_notify("No changes to subfinder results")
+            output_message.append("No changes to subfinder results\n")
 
         #TODO fix messaging
         if httpx_messages:
-            discord_notify("Changes found with httpx:")
+            output_message.append("Changes found with httpx:\n")
             if len(httpx_messages) > config.MAX_DISCORD_MESSAGES:
-                discord_notify(f"[!] There are {len(httpx_messages)} httpx results changed")
+                output_message.append(f"[!] There are {len(httpx_messages)} httpx results changed")
             else:
                 for url, msgs in httpx_messages.items():
                     for msg in msgs:
-                        discord_notify(msg)
+                        output_message.append(msg)
         else:
-            discord_notify("No changes to httpx results")
+            output_message.append("No changes to httpx results\n")
     
-    discord_notify("_________________________")
-            
+    output_message.append("_________________________\n")
+    
+    output_message = "\n".join(output_message)
+    
+    discord_notify(output_message)
+
 if __name__ == "__main__":
     raise SystemExit(main())
