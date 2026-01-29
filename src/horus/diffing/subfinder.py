@@ -1,7 +1,7 @@
 import horus.diffing.file_manager.paths as paths
 from horus.targets import convert_to_set
 
-def diff_subdomains(target: str):
+def diff_subfinder(target: str):
 
     messages = {}
 

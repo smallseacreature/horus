@@ -1,7 +1,6 @@
 import horus.config as config
 import subprocess     
-import horus.diffing.file_manager.paths as paths
-from horus.targets.parser import convert_to_set
+import horus.file_manager.paths as paths
 
 def run_httpx(target: str) -> None:
 
@@ -18,7 +17,7 @@ def run_httpx(target: str) -> None:
         "-fr",
         "-j",
         "-rl", str(config.RATE_LIMIT),
-        "-H", config.bug_bounty_header,
+        "-H", config.user_agent_header,
         "-H", config.contact_header,
         "-o", str(run_dir / "httpx.json")
         ]
@@ -27,7 +26,7 @@ def run_httpx(target: str) -> None:
     result = subprocess.run(
         httpx_cmd,
         # Some CLI tools behave better if stdin ends with a newline
-        input="\n".join(convert_to_set(run_dir / "subdomains.txt")) + "\n",
+        input="\n".join(run_dir / "subdomains.txt") + "\n",
         text=True,
         capture_output=True,
         check=False

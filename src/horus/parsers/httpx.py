@@ -1,4 +1,6 @@
 import json
+from pathlib import Path
+from typing import Any
 
 def process_httpx_jsonl(jsonl: Path, debug: bool = False) -> dict[str, Any]:
 

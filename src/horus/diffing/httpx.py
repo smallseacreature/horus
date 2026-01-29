@@ -1,5 +1,5 @@
-import horus.diffing.file_manager.paths as paths
-from horus.targets import process_httpx_jsonl
+import horus.file_manager.paths as paths
+from horus.parsers import process_httpx_jsonl
 
 def diff_httpx(target: str):
 
