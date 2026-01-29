@@ -1,0 +1,7 @@
+Output manages all things related to how information exits the program
+
+discord.py
+
+discord_notify(msg) 
+- This function sends a discord alert to the webhook defined in ./.env
+- the payload needs to be json for Discord, and the timeout prevents errors from stalling the program

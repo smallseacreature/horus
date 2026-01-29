@@ -6,7 +6,6 @@ from horus.targets.parser import convert_to_set
 def run_httpx(target: str):
 
     run_dir = paths.target_run_dir(target)
-    state_dir = paths.target_state_dir(target)
 
     """ take in a Set of subdomains, and the folder to place it in"""
     httpx_cmd = [

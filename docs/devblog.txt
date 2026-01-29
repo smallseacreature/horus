@@ -1,0 +1,4 @@
+- changed function names to be more explicit
+- enforce tepe declarations
+- made code more pythonic
+- change exit() and such to raise 

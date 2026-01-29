@@ -1,0 +1,13 @@
+checks manages all things validation and integrity, but is NOT for testing things like code changes
+
+preflight
+
+terminal_command_valid
+- This function utilizes which from the shutil lib to perform cross platform checking of a commands existence
+- returns a bool
+
+preflight_check_tools
+- takes a list of terminal commads (defined in config), and runs check command on each
+
+preflight_check_defaults
+- checks to make sure the default values have changed

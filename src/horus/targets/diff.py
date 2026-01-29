@@ -76,6 +76,7 @@ def diff_httpx(target: str):
 
     run   = process_httpx_jsonl(run_dir   / "httpx.json")
     state = process_httpx_jsonl(state_dir / "httpx.json")
+    
     for url in run:
         if url in state:  # Pull info from each url shared with the state
 

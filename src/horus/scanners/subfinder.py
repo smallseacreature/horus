@@ -2,8 +2,6 @@ import horus.config as config
 import subprocess     
 import horus.paths as paths
 
-
-
 def run_subfinder(target: str, debug: bool = False) -> None:
     
     """intake a target, places a list of subdomains in ./data/{target}"""
