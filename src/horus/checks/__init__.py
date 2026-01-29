@@ -1,3 +1,3 @@
-from .preflight import preflight_checks
+from .preflight import run_preflight_checks
 
-__all__ = ["preflight_checks"]
+__all__ = "run_preflight_checks"

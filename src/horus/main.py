@@ -4,8 +4,9 @@
 #imports
 from __future__ import annotations
 
-from horus.targets import process_target_list, diff_subdomains, diff_httpx
-from horus.checks import preflight_checks
+from horus.targets import process_target_list
+from horus.diffing import diff_subfinder, diff_httpx
+from horus.checks import run_preflight_checks
 from horus.scanners import run_subfinder, run_httpx
 from horus.output import discord_notify
 import horus.config as config
@@ -14,7 +15,7 @@ def main():
     #===============
     # preflight
     #===============
-    preflight_checks()
+    run_preflight_checks()
 
     #===============
     # loader
@@ -35,7 +36,7 @@ def main():
         run_httpx(target)
         
         #TODO change all from subdomain to subfinder for consistent naming
-        subdomain_messages = diff_subdomains(target)
+        subdomain_messages = diff_subfinder(target)
         httpx_messages     = diff_httpx(target)
 
         output_message.append(f"RESULTS FOR: {target}\n")
