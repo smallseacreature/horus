@@ -1,69 +1,5 @@
-from __future__ import annotations
-
-from .parser import convert_to_set, process_httpx_jsonl
-import horus.paths as paths
-from pathlib import Path
-import shutil
-
-DEBUG = True
-
-#====================
-# Helper Functions
-#====================
-
-def check_for_state(target: str, debug:bool = False) -> bool:
-
-    """ return bool on state directories existence in target folder"""
-
-    state_dir = paths.target_state_dir(target)
-
-    return state_dir.is_dir()
-
-def copy_dir_contents(src: Path, dst: Path) -> None:
-    dst.mkdir(parents=True, exist_ok=True)
-
-    for item in src.iterdir():
-        if item.is_file():
-            shutil.copy2(item, dst / item.name)
-
-def update_target_state(target: str, debug: bool = False):
-
-    """copy the targets run data into the state data, overwriting the previous state"""
-    state_dir = paths.target_state_dir(target)
-    run_dir = paths.target_run_dir(target)
-
-    copy_dir_contents(run_dir, state_dir)
-
-#====================
-# Subdomains
-#====================
-
-def diff_subdomains(target: str):
-
-    messages = {}
-
-    state_dir = paths.target_state_dir(target)
-    run_dir   = paths.target_run_dir(target)
-
-    run_subdomains   = convert_to_set(run_dir   / "subdomains.txt")
-
-    if ((state_dir / "subdomains.txt").is_file()):
-        state_subdomains = convert_to_set(state_dir / "subdomains.txt")
-    else:
-        return messages
-
-    for subdomain in run_subdomains:
-        if subdomain not in state_subdomains:
-            messages[subdomain] = [f"[+] {subdomain} added"]
-
-    for subdomain in state_subdomains:
-        if subdomain not in run_subdomains:
-            messages[subdomain] = [f"[-] {subdomain} removed"]
-
-    return messages
-#====================
-# httpx
-#====================
+import horus.diffing.file_manager.paths as paths
+from horus.targets import process_httpx_jsonl
 
 def diff_httpx(target: str):
 
@@ -76,7 +12,7 @@ def diff_httpx(target: str):
 
     run   = process_httpx_jsonl(run_dir   / "httpx.json")
     state = process_httpx_jsonl(state_dir / "httpx.json")
-    
+
     for url in run:
         if url in state:  # Pull info from each url shared with the state
 

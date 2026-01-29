@@ -1,5 +1,5 @@
 #loader.py
-import horus.paths as paths
+import horus.diffing.file_manager.paths as paths
 from pathlib import Path
 
 def process_target_list(debug=False) -> list[str]:

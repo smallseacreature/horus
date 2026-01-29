@@ -1,5 +1,5 @@
 import subprocess     
-import horus.paths as paths
+import horus.diffing.file_manager.paths as paths
 
 def run_subfinder(target: str) -> None:
     

@@ -1,6 +1,6 @@
 import horus.config as config
 import subprocess     
-import horus.paths as paths
+import horus.diffing.file_manager.paths as paths
 from horus.targets.parser import convert_to_set
 
 def run_httpx(target: str) -> None:
@@ -32,7 +32,7 @@ def run_httpx(target: str) -> None:
         capture_output=True,
         check=False
     )
-    
+
     #CHAT CODE
     if result.returncode != 0:
         # include stderr to make debugging obvious
