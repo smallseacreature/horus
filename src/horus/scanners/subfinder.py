@@ -1,16 +1,12 @@
-import horus.config as config
 import subprocess     
 import horus.paths as paths
 
-def run_subfinder(target: str, debug: bool = False) -> None:
+def run_subfinder(target: str) -> None:
     
-    """intake a target, places a list of subdomains in ./data/{target}"""
+    """ Take in a target url and run subfinder on that url """
 
-    if debug:
-        print(f"Starting subfinder on {target}")
-        
-    out_file = paths.target_run_dir(target) / "subdomains.txt"
-    out_file.parent.mkdir(parents=True, exist_ok=True)
+    output_file = paths.target_run_dir(target) / "subdomains.txt"
+    output_file.parent.mkdir(parents=True, exist_ok=True)
     
     subfinder_cmd = [
             "subfinder", 
@@ -22,10 +18,17 @@ def run_subfinder(target: str, debug: bool = False) -> None:
     result = subprocess.run(
         subfinder_cmd, 
         capture_output=True, 
-        text=True
+        text=True,
+        check=False
         )
 
+    #CHAT CODE
+    if result.returncode != 0:
+        raise RuntimeError(
+            f"subfinder failed (exit {result.returncode}). stderr:\n{result.stderr.strip()}"
+        )
+    
     #write to file in data folder
-    with out_file.open("w") as f:
+    with output_file.open("w") as f:
         for line in result.stdout.splitlines():
             f.write(line.strip() + "\n")
