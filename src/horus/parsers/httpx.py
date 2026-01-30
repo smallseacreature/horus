@@ -2,15 +2,13 @@ import json
 from pathlib import Path
 from typing import Any
 
-def process_httpx_jsonl(jsonl: Path, debug: bool = False) -> dict[str, Any]:
+def process_httpx_jsonl(jsonl: Path) -> dict[str, dict]:
 
     """takes in the httpx output as jsonl, pulls relevant keys and outputs as dict for diff"""
 
     out: dict[str, Any] = {}
 
     if not jsonl.exists():
-        if debug:
-            print("no jsonl found")
         return out
 
     with jsonl.open("r", encoding="utf-8") as f:

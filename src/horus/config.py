@@ -21,7 +21,7 @@ contact_header    = "X-Contact: smallseacreature@wearehackerone.com"
 #===============
 # Lists
 #===============
-required_tools = ["httpx", "subfinder"]
+required_tools = ["httpx", "subfinder", "katana"]
 
 #===============
 # Output
