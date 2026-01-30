@@ -17,19 +17,25 @@ def run_httpx(target: str) -> None:
         "-fr",
         "-j",
         "-rl", str(config.RATE_LIMIT),
-        "-H", config.user_agent_header,
-        "-H", config.contact_header,
-        "-o", str(run_dir / "httpx.json")
+        "-H",  config.user_agent_header,
+        "-H",  config.contact_header,
+        "-o",  str(run_dir / "httpx.json")
         ]
     
-    #TODO investigate convert to set memory impact
+    subdomains_file = run_dir / "subdomains.txt"
+    if not subdomains_file.exists():
+        raise FileNotFoundError(f"Missing {subdomains_file}")
+
+    # Some CLI tools behave better if stdin ends with a newline
+    stdin = subdomains_file.read_text(encoding="utf-8").strip() + "\n"
+    
     result = subprocess.run(
         httpx_cmd,
-        # Some CLI tools behave better if stdin ends with a newline
-        input="\n".join(run_dir / "subdomains.txt") + "\n",
-        text=True,
-        capture_output=True,
-        check=False
+        
+        input          = stdin,
+        text           = True,
+        capture_output = True,
+        check          = False
     )
 
     #CHAT CODE

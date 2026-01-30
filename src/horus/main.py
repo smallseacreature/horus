@@ -4,12 +4,15 @@
 #imports
 from __future__ import annotations
 
-from horus.targets import process_target_list
-from horus.diffing import diff_subfinder, diff_httpx
-from horus.checks import run_preflight_checks
-from horus.scanners import run_subfinder, run_httpx
-from horus.output import discord_notify
-import horus.config as config
+from horus.targets      import process_target_list
+from horus.diffing      import diff_subfinder, diff_httpx
+from horus.checks       import run_preflight_checks
+from horus.scanners     import run_subfinder, run_httpx
+from horus.output       import discord_notify, httpx_social_output, subfinder_social_output, \
+                               output_httpx_data, output_subfinder_data
+from horus.file_manager import update_target_state, target_run_dir
+import horus.config     as config
+
 
 def main():
     #===============
@@ -27,46 +30,42 @@ def main():
     #===============
     output_message = []
 
-    output_message.append("************HORUS************")
+    # Header
+    output_message.append("**HORUS**\n")
     output_message.append(f"Date: {config.DATE_TODAY}\n")
 
+    #Start by target
     for target in targets:
 
-        run_subfinder(target)
-        run_httpx(target)
-        
-        #TODO change all from subdomain to subfinder for consistent naming
-        subdomain_messages = diff_subfinder(target)
-        httpx_messages     = diff_httpx(target)
+        #run tools on target
+        if not (target_run_dir(target) / "subdomains.txt").is_file():
+            run_subfinder(target)
 
-        output_message.append(f"RESULTS FOR: {target}\n")
+        if not (target_run_dir(target) / "httpx.json").is_file():   
+            run_httpx(target)
+  
+        #diff
+        httpx_diff_result     = diff_httpx(target)
+        subfinder_diff_result = diff_subfinder(target)
 
-        if subdomain_messages:
-            output_message.append("Changes found with Subfinder:\n")
-            if len(subdomain_messages) > config.MAX_DISCORD_MESSAGES:
-                output_message.append(f"[!] There are {len(subdomain_messages)} subfinder results changed\n")
-            print(subdomain_messages.items())
-                
-        else:
-            output_message.append("No changes to subfinder results\n")
+        httpx_social_output_result     = httpx_social_output(httpx_diff_result)
+        subfinder_social_output_result = subfinder_social_output(subfinder_diff_result)
 
-        #TODO fix messaging
-        if httpx_messages:
-            output_message.append("Changes found with httpx:\n")
-            if len(httpx_messages) > config.MAX_DISCORD_MESSAGES:
-                output_message.append(f"[!] There are {len(httpx_messages)} httpx results changed")
-            else:
-                for url, msgs in httpx_messages.items():
-                    for msg in msgs:
-                        output_message.append(msg)
-        else:
-            output_message.append("No changes to httpx results\n")
+        output_message.append(f"RESULTS FOR: {target}")
+        output_message.append(httpx_social_output_result)
+        output_message.append(subfinder_social_output_result)
     
-    output_message.append("_________________________\n")
+    output_message.append("_\n")
     
+    # build and notify
     output_message = "\n".join(output_message)
-    
     discord_notify(output_message)
+
+    #write data
+    output_httpx_data(httpx_diff_result, target)
+    output_subfinder_data(subfinder_diff_result, target)
+    #move to state
+    update_target_state(target)
 
 if __name__ == "__main__":
     raise SystemExit(main())

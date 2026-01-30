@@ -17,9 +17,9 @@ def run_subfinder(target: str) -> None:
     #run subfinder
     result = subprocess.run(
         subfinder_cmd, 
-        capture_output=True, 
-        text=True,
-        check=False
+        capture_output = True, 
+        text           = True,
+        check          = False
         )
 
     #CHAT CODE
